@@ -11,7 +11,7 @@ export const Mascot = ({ state = 'hello', size = 120, style }) => {
   switch (state) {
     case 'income':
     case 'loc-ve':
-      return (
+      return (~~
         <Svg width={width} height={height} viewBox="0 0 200 200" fill="none" style={style}>
           <Path d="M40 70L44 80L54 84L44 88L40 98L36 88L26 84L36 80Z" fill="#FFB938" />
           <Path d="M30 110L32 116L38 118L32 120L30 126L28 120L22 118L28 116Z" fill="#FFB938" />

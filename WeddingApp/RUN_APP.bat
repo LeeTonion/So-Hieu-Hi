@@ -34,8 +34,8 @@ echo      OK!
 echo.
 
 :: Khoi dong Metro Bundler (chay ngam)
-echo [3/5] Khoi dong Metro Bundler...
-start "Metro Bundler" cmd /c "cd /d "%PROJECT_DIR%" && npx react-native start --port 8081"
+echo [3/5] Khoi dong Metro Bundler (Clear Cache)...
+start "Metro Bundler" cmd /c "cd /d "%PROJECT_DIR%" && npx react-native start --port 8081 --reset-cache"
 echo      OK - Metro dang chay!
 echo.
 

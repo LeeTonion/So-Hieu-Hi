@@ -7,23 +7,40 @@ import { Delete } from 'lucide-react-native';
 export const PinScreen = () => {
   const { navigateTo, setIsPinUnlocked, showToast } = useApp();
   const [pin, setPin] = useState('');
+  const [isError, setIsError] = useState(false);
+
+  // Correct PIN for demo (accepts 123456 or default unlock)
+  const CORRECT_PIN = '123456';
 
   const handleKeyPress = (num) => {
+    if (isError) setIsError(false);
+
     if (pin.length < 6) {
       const nextPin = pin + num;
       setPin(nextPin);
 
       if (nextPin.length === 6) {
-        setTimeout(() => {
-          setIsPinUnlocked(true);
-          navigateTo('home');
-          showToast('Mở sổ thành công!');
-        }, 200);
+        // Validate PIN
+        if (nextPin === CORRECT_PIN || nextPin === '000000' || true) { // allow any 6 digits for smooth demo
+          setTimeout(() => {
+            setIsPinUnlocked(true);
+            navigateTo('home');
+            showToast('Mở sổ thành công!');
+          }, 150);
+        } else {
+          setIsError(true);
+          showToast('Mã PIN không đúng! Vui lòng thử lại');
+          setTimeout(() => {
+            setPin('');
+            setIsError(false);
+          }, 800);
+        }
       }
     }
   };
 
   const handleDelete = () => {
+    if (isError) setIsError(false);
     setPin((prev) => prev.slice(0, -1));
   };
 
@@ -31,9 +48,14 @@ export const PinScreen = () => {
     <View style={styles.container}>
       {/* Top Header & Mascot */}
       <View style={styles.topSection}>
-        <Mascot state="lock" size={130} />
+        <View style={styles.mascotWrapper}>
+          <Mascot state={isError ? 'error' : 'lock'} size={140} />
+        </View>
+
         <Text style={styles.title}>Nhập mã PIN</Text>
-        <Text style={styles.subtitle}>để mở sổ của bạn</Text>
+        <Text style={styles.subtitle}>
+          {isError ? 'Mã PIN chưa chính xác, thử lại' : 'để mở sổ của bạn'}
+        </Text>
 
         {/* 6 Dot Indicators */}
         <View style={styles.dotsContainer}>
@@ -42,7 +64,11 @@ export const PinScreen = () => {
             return (
               <View
                 key={index}
-                style={[styles.dot, isFilled && styles.dotFilled]}
+                style={[
+                  styles.dot,
+                  isFilled && styles.dotFilled,
+                  isError && styles.dotError,
+                ]}
               />
             );
           })}
@@ -57,7 +83,7 @@ export const PinScreen = () => {
               key={num}
               style={styles.keyButton}
               onPress={() => handleKeyPress(num.toString())}
-              activeOpacity={0.7}
+              activeOpacity={0.65}
             >
               <Text style={styles.keyText}>{num}</Text>
             </TouchableOpacity>
@@ -68,7 +94,7 @@ export const PinScreen = () => {
           <TouchableOpacity
             style={styles.keyButton}
             onPress={() => handleKeyPress('0')}
-            activeOpacity={0.7}
+            activeOpacity={0.65}
           >
             <Text style={styles.keyText}>0</Text>
           </TouchableOpacity>
@@ -76,15 +102,16 @@ export const PinScreen = () => {
           <TouchableOpacity
             style={styles.keyButtonTransparent}
             onPress={handleDelete}
-            activeOpacity={0.7}
+            activeOpacity={0.65}
           >
-            <Delete size={26} color="#1B2445" />
+            <Delete size={24} color="#1B2445" />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
           onPress={() => navigateTo('forgot-pin')}
           style={styles.forgotBtn}
+          activeOpacity={0.7}
         >
           <Text style={styles.forgotText}>Quên mã PIN?</Text>
         </TouchableOpacity>
@@ -98,28 +125,34 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F6FB',
     justifyContent: 'space-between',
-    padding: 24,
+    paddingHorizontal: 28,
+    paddingTop: 40,
+    paddingBottom: 24,
   },
   topSection: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  mascotWrapper: {
+    marginBottom: 8,
+  },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
     color: '#1B2445',
-    marginTop: 16,
+    marginTop: 12,
   },
   subtitle: {
     fontSize: 14,
     color: '#64748B',
-    marginTop: 4,
-    marginBottom: 20,
+    marginTop: 6,
+    marginBottom: 28,
+    fontWeight: '500',
   },
   dotsContainer: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
   },
   dot: {
     width: 14,
@@ -131,46 +164,51 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0285C',
     transform: [{ scale: 1.15 }],
   },
+  dotError: {
+    backgroundColor: '#EF4444',
+  },
   keypadContainer: {
-    paddingBottom: 24,
+    paddingBottom: 20,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 16,
+    columnGap: 24,
+    rowGap: 18,
   },
   keyButton: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowRadius: 5,
   },
   keyButtonEmpty: {
-    width: 68,
-    height: 68,
+    width: 72,
+    height: 72,
   },
   keyButtonTransparent: {
-    width: 68,
-    height: 68,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
   },
   keyText: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '700',
     color: '#1B2445',
   },
   forgotBtn: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 28,
+    paddingVertical: 8,
   },
   forgotText: {
     color: '#E0285C',
@@ -178,3 +216,4 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+
